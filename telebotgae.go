@@ -63,8 +63,9 @@ func (t Bot) Startgae(conf Configuration, resp Responder) {
 		os.Exit(1)
 	}
 	if len(conf.ProjId) != 0 {
-		fmt.Println("FATAL: Bot Name not set. Please check your configuration")
-		os.Exit(1)
+		fmt.Println("INFO: Don't forget to visit:")
+		fmt.Println(t.telegramWebhookURL(conf))
+		fmt.Println("INFO: Just once, you won't be able to receive messages")
 	}
 
 	fmt.Println("INFO: Settings loaded!")
@@ -132,23 +133,25 @@ func (t Bot) LoadSettings(filename string) (Configuration, error) {
 // Returns the telegram send URL, used to send messages.
 // The URL is built using the loaded configuration.
 func (t Bot) telegramSendURL(conf Configuration) string {
-	sendurl := url.URL{Scheme: "https", Host: "api.telegram.org", Path: "bot" + conf.ApiKey + "/sendMessage"}
-	return sendurl.RequestURI()
+	sendurl := url.URL{
+		Scheme: "https",
+		Host:   "api.telegram.org",
+		Path:   "bot" + conf.ApiKey + "/sendMessage"}
+	return sendurl.String()
 }
 
 // Returns the telegram webhook URL, used to receive messages.
 // The URL is built using the loaded configuration.
 func (t Bot) telegramWebhookURL(conf Configuration) string {
-
-	gaeurl := url.URL{Scheme: "https", Host: conf.ProjId + ".appspot.com"}
-	teleurl := url.URL{Scheme: "https", Host: "api.telegram.org"}
-	teleurl.Path = url.QueryEscape("bot" + conf.ApiKey + "/setWebhook")
-
-	q := teleurl.Query()
-	q.Set("url", url.QueryEscape(gaeurl.RequestURI()))
-	teleurl.RawQuery = q.Encode()
-
-	return teleurl.RequestURI()
+	gaeurl := url.URL{
+		Scheme: "https",
+		Host:   conf.ProjId + ".appspot.com"}
+	teleurl := url.URL{
+		Scheme: "https",
+		Host:   "api.telegram.org"}
+	teleurl.Path = "bot" + conf.ApiKey + "/setWebhook"
+	teleurl.RawQuery = "url=" + gaeurl.String()
+	return teleurl.String()
 }
 
 // Process a single user message and returns the answer.
