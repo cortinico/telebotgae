@@ -16,12 +16,12 @@ package main
 import "github.com/cortinico/telebotgae"
 
 func main() {
-	conf := telebot.Configuration{
+	conf := telebotgae.Configuration{
 		BotName: "SampleBot",
 		ApiKey:  "162227600:AAAAAAAAAAABBBBBBBBBBCCCCCCCCCDDDDD",
 		ProjID: "mysimple-telegram-bot"}
 
-	var bot telebot.Bot
+	var bot telebotgae.Bot
 
 	bot.Startgae(conf, func(mess string, req *http.Request)
 		 (string, error) {
