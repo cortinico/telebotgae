@@ -11,21 +11,24 @@ You simply need a configuration (BotName + API Key + ProjectID) and a Response f
 
 Checkout this sample code:
 ```go
-package main
+package hello
 
-import "github.com/cortinico/telebotgae"
+import (
+	"github.com/cortinico/telebotgae"
+	"net/http"
+)
 
-func main() {
-	conf := telebotgae.Configuration{
-		BotName: "SampleBot",
-		ApiKey:  "162227600:AAAAAAAAAAABBBBBBBBBBCCCCCCCCCDDDDD",
-		ProjID: "mysimple-telegram-bot"}
+func init() {
+    conf := telebotgae.Configuration{
+        BotName: "SampleBot",
+        ApiKey:  "162227600:AAAAAAAAAAABBBBBBBBBBCCCCCCCCCDDDDD",
+        ProjID: "mysimple-telegram-bot"}
 
-	var bot telebotgae.Bot
+    var bot telebotgae.Bot
 
-	bot.Startgae(conf, func(mess string, req *http.Request)
-		 (string, error) {
-		var answer string
+    bot.Startgae(conf, func(mess string, req *http.Request)
+         (string, error) {
+        var answer string
 		switch mess {
 		case "/test":
 			answer = "Test command works :)"
@@ -33,7 +36,7 @@ func main() {
 			answer = "You typed " + mess
 		}
 		return answer, nil
-	})
+    })
 }
 ```
 
