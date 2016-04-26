@@ -1,5 +1,4 @@
 {
 	"BotName": "Place your Telegram Bot Name here",
-	"ApiKey" : "Place your Telegram Bot API Key here",
-	"ProjId" : "Place your GAE Project id here"
+	"ApiKey" : "Place your Telegram Bot API Key here"
 }

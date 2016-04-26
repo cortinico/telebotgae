@@ -17,25 +17,27 @@ import (
 	"strings"
 )
 
-// Interface Repserent a generic telegram bot. Exported functions
-// are just LoadSettings to load a configuration and Start to
-// launch the bot.
+// Interface Representing a generic telegram bot. Exported functions
+// are just LoadSettings to load a configuration and Startgae to
+// initialize the bot handlers.
 type IBot interface {
-	Start(conf Configuration, resp Responder)
+	Startgae(conf Configuration, resp Responder)
 	LoadSettings(filename string) (Configuration, error)
 	telegramSendURL(conf Configuration) string
+	getResponse(message string, conf Configuration, resp Responder, request *http.Request) string
 }
 
 // Struct representing a telegram Bot (will implement IBot).
 // Bot has no field (no state), it's just an empty bot
 type Bot struct{}
 
-// Responder function, responsible of handling to user commands.
+// Responder function, responsible of handling user commands.
 // This function represent the logic of your bot, you must provide
 // a couple (string, error) for every message. The returned string
 // will be sent to the user. If you set the error, the user will
 // see an informative message.
-// TODO
+// The http.Request parameter can be used to get access to
+// an App Engine context (to use the MemCache or other GAE features)
 type Responder func(string, *http.Request) (string, error)
 
 // Configuration struct representing the configuration used from
@@ -44,15 +46,14 @@ type Responder func(string, *http.Request) (string, error)
 type Configuration struct {
 	BotName string `json:"BotName"` // Name of the bot
 	ApiKey  string `json:"ApiKey"`  // API Key of the bot (ask @BotFather)
-	ProjId  string `json:"ProjId"`  // Project ID on GAE
 }
 
-// Starts the telegram bot. The parameter conf represent the running
+// Initialize the telegram bot. The parameter conf represents the running
 // configuration. The conf is mandatory otherwise the bot can't authenticate.
 // The parameter resp is the Responder function. Also this parameter is
 // mandatory, otherwise the bot don't know how to anser to user questions.
-// TODO
 func (t Bot) Startgae(conf Configuration, resp Responder) {
+
 	// Settings management
 	if len(conf.BotName) == 0 {
 		fmt.Println("FATAL: Bot Name not set. Please check your configuration")
@@ -62,21 +63,15 @@ func (t Bot) Startgae(conf Configuration, resp Responder) {
 		fmt.Println("FATAL: API Key not set. Please check your configuration")
 		os.Exit(1)
 	}
-	if len(conf.ProjId) != 0 {
-		fmt.Println("INFO: Don't forget to visit:")
-		fmt.Println(t.telegramWebhookURL(conf))
-		fmt.Println("INFO: Just once, you won't be able to receive messages")
-	}
 
-	fmt.Println("INFO: Settings loaded!")
-	fmt.Println("INFO: Working as: " + conf.BotName)
-
+	// Handler function
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		t.postHandler(w, r, conf, resp)
 	})
 }
 
-// TODO
+// Handler function, will be called whenever the bot will receive some
+// messages from Telegram.
 func (t Bot) postHandler(w http.ResponseWriter, r *http.Request, conf Configuration, resp Responder) {
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -98,7 +93,6 @@ func (t Bot) postHandler(w http.ResponseWriter, r *http.Request, conf Configurat
 		// Answer message
 		var err error
 		answer := t.getResponse(message.Message.Text, conf, resp, r)
-		log.Infof(ctx, "INFO: Response: '"+answer+"'")
 
 		vals := url.Values{
 			"chat_id": {strconv.FormatInt(message.Message.Chat.Chatid, 10)},
@@ -109,7 +103,7 @@ func (t Bot) postHandler(w http.ResponseWriter, r *http.Request, conf Configurat
 			log.Infof(ctx, "INFO: Answer: '"+answer+"' To: '"+message.Message.From.Uname+"'")
 		}
 	}
-	fmt.Fprint(w, "Telebot working :)")
+	fmt.Fprint(w, "Telebotgae working :)")
 }
 
 // Load a configuration from a Json file and returns a configuration.
@@ -138,20 +132,6 @@ func (t Bot) telegramSendURL(conf Configuration) string {
 		Host:   "api.telegram.org",
 		Path:   "bot" + conf.ApiKey + "/sendMessage"}
 	return sendurl.String()
-}
-
-// Returns the telegram webhook URL, used to receive messages.
-// The URL is built using the loaded configuration.
-func (t Bot) telegramWebhookURL(conf Configuration) string {
-	gaeurl := url.URL{
-		Scheme: "https",
-		Host:   conf.ProjId + ".appspot.com"}
-	teleurl := url.URL{
-		Scheme: "https",
-		Host:   "api.telegram.org"}
-	teleurl.Path = "bot" + conf.ApiKey + "/setWebhook"
-	teleurl.RawQuery = "url=" + gaeurl.String()
-	return teleurl.String()
 }
 
 // Process a single user message and returns the answer.
