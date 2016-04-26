@@ -13,7 +13,11 @@ bot on [Google App Engine](https://appengine.google.com). With this you can simp
 
 * Create a new project on [Google Cloud Dashboard](http://cloud.google.com) and remember the **project id** that Google gives to you, say `my-telegrambot-project-id`.
 
+<img src="http://i.imgur.com/lvyjpCN.png" width=500px />
+
 * Create a new bot interacting with [@BotFather](https://telegram.me/botfather) on Telegram. Open a chat with @BotFather and start asking with `/newbot`. He will guide you through the creation of a new bot, and he will give you an **API Key**, say `162227600:AAAAAAAAAAABBBBBBBBBBCCCCCCCCCDDDDD`.
+
+<img src="http://i.imgur.com/fgnwUgE.png" width=500px />
 
 * Copy the **example bot skeleton** inside the `bot_example` folder of this repository.
 ```bash
@@ -66,6 +70,7 @@ If you see this message:
 ```json
 {"ok":true,"result":true,"description":"Webhook was set"}
 ```
+![browser](http://i.imgur.com/TIwT19v.png)
 
 Then your bot is working :D Have fun with telebotgae
 
