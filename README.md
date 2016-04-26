@@ -1,4 +1,4 @@
-# Telebotgae [![Build Status](https://travis-ci.org/cortinico/telebotgae.svg?branch=master)](https://travis-ci.org/cortinico/telebotgae)
+# Telebotgae [![Build Status](https://travis-ci.org/cortinico/telebotgae.svg?branch=master)](https://travis-ci.org/cortinico/telebotgae) [![GoDoc](https://godoc.org/github.com/cortinico/telebotgae?status.svg)](https://godoc.org/github.com/cortinico/telebotgae)
 
 A simple Telegram bot skeleton written in Go (GAE Capable)
 
