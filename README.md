@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # Telebot 4 Google App Engine [![Build Status](https://travis-ci.org/cortinico/telebotgae.svg?branch=master)](https://travis-ci.org/cortinico/telebotgae)
-=======
-# Telebotgae [![Build Status](https://travis-ci.org/cortinico/telebotgae.svg?branch=master)](https://travis-ci.org/cortinico/telebotgae) [![GoDoc](https://godoc.org/github.com/cortinico/telebotgae?status.svg)](https://godoc.org/github.com/cortinico/telebotgae)
->>>>>>> 603e82e8b2e76ee971374878e08cbb6abba14d28
 
 A simple Telegram bot skeleton written in Go (GAE Capable)
 
