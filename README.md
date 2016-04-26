@@ -1,15 +1,76 @@
-# Telebotgae [![Build Status](https://travis-ci.org/cortinico/telebotgae.svg?branch=master)](https://travis-ci.org/cortinico/telebotgae)
+# Telebot 4 Google App Engine [![Build Status](https://travis-ci.org/cortinico/telebotgae.svg?branch=master)](https://travis-ci.org/cortinico/telebotgae)
 
 A simple Telegram bot skeleton written in Go (GAE Capable)
 
 This library is derived from [telebot](https://github.com/cortinico/telebot) and allows you to deploy your
-bot on [Google App Engine](https://appengine.google.com)
+bot on [Google App Engine](https://appengine.google.com). With this you can simply deploy your bot code on AppEngine and forget about server management and scaling.
 
-## Usage
+## Setup
 
-You simply need a configuration (BotName + API Key + ProjectID) and a Response function.
+1. [Download, Setup and Configure the Go App Engine SDK](https://cloud.google.com/appengine/downloads#Google_App_Engine_SDK_for_Go). Don't forget to set the `$PATH` environment variable as explained in Google guide.
 
-Checkout this sample code:
+2. We assume that *Go* and the `$GOPATH` variable are properly set up. If not, please follow [getting started with Go](https://golang.org/doc/install)
+
+3. Create a new project on [Google Cloud Dashboard](http://cloud.google.com) and remember the *project id* that Google gives to you, say `my-telegrambot-project-id`.
+
+4. Create a new bot interacting with [@BotFather] on Telegram. Open a chat with @BotFather and start asking with `/newbot`. He will guide you through the creation of a new bot, and he will give you an API Key, say `162227600:AAAAAAAAAAABBBBBBBBBBCCCCCCCCCDDDDD`.
+
+5. Copy the *example bot skeleton* inside the `bot_example` folder of this repository.
+```bash
+git clone https://github.com/cortinico/telebotgae.git && cd telebotgae/bot_example
+```
+
+6. Edit the file `hello.go` adding your *bot name* (without @) and your *API Key*
+```go
+func init() {
+	conf := telebotgae.Configuration{
+		BotName: "MyNewSampleBot",
+		ApiKey:  "162227600:AAAAAAAAAAABBBBBBBBBBCCCCCCCCCDDDDD"}
+```
+
+7. Edit the file `app.yaml` adding your *project-id* from Google Cloud Dashboard
+```yaml
+application: my-telegrambot-project-id
+version: 1
+runtime: go
+api_version: go1
+
+handlers:
+- url: /.*
+  script: _go_app
+  secure: always
+```
+
+8. Grab this library and build the project
+```bash
+goapp get github.com/cortinico/telebotgae && goapp build
+```
+
+9. Deploy your bot to App Engine. If it's the first time you deploy, you will be asked for *google authentication*.
+```bash
+goapp deploy
+```
+
+10. Visit the following web page:
+```
+https://api.telegram.org/bot[API_KEY]/setWebhook?url=https://[PROJECT-ID].appspot.com
+```
+
+So your URL should look like this:
+```
+https://api.telegram.org/bot162227600:AAAAAAAAAAABBBBBBBBBBCCCCCCCCCDDDDD/setWebhook?url=https://my-telegrambot-project-id.appspot.com
+```
+*DON'T FORGET TO DO IT, AND DON'T MISPELL, OTHERWISE YOUR BOT WON'T WORK*.
+If you see this message:
+```json
+{"ok":true,"result":true,"description":"Webhook was set"}
+```
+
+Then your bot is working :D Have fun with telebotgae
+
+## hello.go
+
+Your bot code should look like this:
 ```go
 package hello
 
@@ -19,26 +80,34 @@ import (
 )
 
 func init() {
-    conf := telebotgae.Configuration{
-        BotName: "SampleBot",
-        ApiKey:  "162227600:AAAAAAAAAAABBBBBBBBBBCCCCCCCCCDDDDD",
-        ProjID: "mysimple-telegram-bot"}
+	conf := telebotgae.Configuration{
+		BotName: "MyNewSampleBot",
+		ApiKey:  "162227600:AAAAAAAAAAABBBBBBBBBBCCCCCCCCCDDDDD"}
 
-    var bot telebotgae.Bot
+	var bot telebotgae.Bot
 
-    bot.Startgae(conf, func(mess string, req *http.Request)
-         (string, error) {
-        var answer string
-		switch mess {
-		case "/test":
-			answer = "Test command works :)"
-		default:
-			answer = "You typed " + mess
-		}
-		return answer, nil
-    })
+	bot.Startgae(conf, func(mess string, r *http.Request) (string, error) {
+		return "You typed " + mess, nil
+	})
 }
 ```
+
+You can use the second parameter of `Startgae` to implement the logic of your bot.
+The second parameter must be a function with the following type:
+```go
+type Responder func(string, *http.Request) (string, error)
+```
+You will receive in input a `string` with the message from the user, and an `http.Request`.
+You can use the `http.Request` to get access to all the App Engine nice feature such as 
+Datastore, Memcache, etc...
+
+You have to provide a tuple made by the answer and the error. Set the error to nil if
+nothing unexpected has occurred.
+
+## Configuration
+
+`Configuration` can also be loaded from a JSON file, using the `LoadSettings(filename string) (Configuration, error)`
+function.
 
 ## Licence
 
